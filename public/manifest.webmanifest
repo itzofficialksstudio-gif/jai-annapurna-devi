@@ -1,0 +1,16 @@
+{
+  "name": "Jai Annapurna Devi — Pure Veg Cloud Kitchen",
+  "short_name": "Annapurna Devi",
+  "description": "Order fresh pure vegetarian Indian meals online from Jai Annapurna Devi Cloud Kitchen.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF6F0",
+  "theme_color": "#991B1B",
+  "icons": [
+    {
+      "src": "/src/assets/images/hero_indian_thali_1795527587477.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

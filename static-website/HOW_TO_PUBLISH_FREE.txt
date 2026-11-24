@@ -1,0 +1,34 @@
+JAI ANNAPURNA DEVI — FREE WEBSITE PUBLISH GUIDE (NO APP / ₹0 COST)
+==================================================================
+
+404 PAGE NOT FOUND KYUN AATA HAI?
+1. Agar aap GitHub par poora "static-website" FOLDER upload kar dete hain (jaise repo/static-website/index.html), to GitHub Pages ko root par index.html nahi milta aur 404 aata hai.
+   SAHI TARIKA: Folder ke ANDAR ki files (index.html, style.css, script.js, aur images folder) seedhe repository ke ROOT me upload karein!
+2. Agar aap Google AI Studio ka "Shared App URL" khol rahe hain bina Deploy/Publish kiye, tab bhi 404 aata hai.
+
+------------------------------------------------------------------
+SABSE AASAN TARIKA — NETLIFY DROP (30 SECOND ME LIVE, ₹0 FREE)
+------------------------------------------------------------------
+1. Apne computer/phone par "static-website" folder download karein (isme index.html, style.css, script.js aur images folder hone chahiye).
+2. Browser me kholein: https://app.netlify.com/drop
+3. Free account banayein (Google/Email se).
+4. Poora "static-website" folder drag & drop kar dein.
+5. 10 second me aapko free website link mil jayega (jaise: https://jai-annapurna-devi.netlify.app).
+
+------------------------------------------------------------------
+GITHUB PAGES SE FREE PUBLISH KARNE KE STEP-BY-STEP TARIKA:
+------------------------------------------------------------------
+1. https://github.com par free account banayein aur login karein.
+2. "+" par click karke "New repository" banayein:
+   - Repository name: jai-annapurna-devi
+   - Public select karein -> "Create repository" par click karein.
+3. "uploading an existing file" par click karein.
+4. DHYAN DEIN: "static-website" folder khol kar uske ANDAR ki saari cheezein select karke upload karein:
+   - index.html (root par hona chahiye!)
+   - style.css (root par hona chahiye!)
+   - script.js (root par hona chahiye!)
+   - images folder (root par hona chahiye!)
+5. Neeche "Commit changes" par click karein.
+6. Upar "Settings" tab -> Left side me "Pages" par click karein.
+7. "Branch" me "main" aur "/ (root)" select karke "Save" dabayein.
+8. 2 minute wait karein aur page refresh karein — aapki live website link upar dikh jayegi!

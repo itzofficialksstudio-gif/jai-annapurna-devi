@@ -1,0 +1,6 @@
+{
+  "name": "Jai Annapurna Devi — Pure Veg Cloud Kitchen",
+  "description": "Order fresh pure vegetarian Indian meals online from Jai Annapurna Devi Cloud Kitchen. Paneer curries, Aloo Paratha, Pulao, Dal Tadka, and snacks delivered hot.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

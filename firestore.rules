@@ -1,0 +1,313 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net (Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Global Hardened Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isBootstrappedAdminEmail() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'itzofficialksstudio@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdminEmail() || (
+        isSignedIn()
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // 3. Entity Validation Blueprints
+    function isValidMenuCategory(cat) {
+      return cat in [
+        'Paneer',
+        'Maggi & Noodles',
+        'Rice & Pulao',
+        'Pasta',
+        'Paratha',
+        'Dal & Vegetables',
+        'Raita & Salad',
+        'Roti & Breakfast',
+        'Beverages & Extras'
+      ];
+    }
+
+    function isValidMenuItem(data) {
+      return data.keys().hasAll([
+          'id', 'name', 'category', 'description', 'image',
+          'fullPrice', 'isAvailable', 'isPopular', 'sortOrder', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'name', 'category', 'description', 'image',
+          'halfPrice', 'fullPrice', 'originalHalfPrice', 'originalFullPrice',
+          'unitLabel', 'isAvailable', 'isPopular', 'sortOrder', 'updatedAt'
+        ])
+        && isValidId(data.id)
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 100
+        && data.category is string && isValidMenuCategory(data.category)
+        && data.description is string && data.description.size() <= 240
+        && data.image is string && data.image.size() <= 300
+        && data.fullPrice is number && data.fullPrice >= 1 && data.fullPrice <= 5000
+        && (!('halfPrice' in data) || data.halfPrice == null || (data.halfPrice is number && data.halfPrice >= 1 && data.halfPrice <= 5000))
+        && (!('originalHalfPrice' in data) || data.originalHalfPrice == null || (data.originalHalfPrice is number && data.originalHalfPrice >= 1 && data.originalHalfPrice <= 5000))
+        && (!('originalFullPrice' in data) || data.originalFullPrice == null || (data.originalFullPrice is number && data.originalFullPrice >= 1 && data.originalFullPrice <= 5000))
+        && (!('unitLabel' in data) || (data.unitLabel is string && data.unitLabel.size() <= 40))
+        && data.isAvailable is bool
+        && data.isPopular is bool
+        && data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000
+        && data.updatedAt == request.time;
+    }
+
+    function isValidOrderStatusValue(s) {
+      return s in ['Pending', 'Accepted', 'Preparing', 'Out for Delivery', 'Delivered', 'Cancelled'];
+    }
+
+    function isValidCancellationStatusValue(cs) {
+      return cs in ['None', 'Requested', 'Approved', 'Rejected'];
+    }
+
+    function isValidOrderItemList(items) {
+      return items is list
+        && items.size() >= 1
+        && items.size() <= 30
+        && items[0] is map
+        && items[0].keys().hasAll(['id', 'name', 'variant', 'qty', 'price'])
+        && items[0].keys().hasOnly(['id', 'name', 'variant', 'qty', 'price'])
+        && items[0].id is string && items[0].id.size() >= 1 && items[0].id.size() <= 64
+        && items[0].name is string && items[0].name.size() >= 1 && items[0].name.size() <= 100
+        && items[0].variant is string && items[0].variant.size() >= 1 && items[0].variant.size() <= 30
+        && items[0].qty is number && items[0].qty >= 1 && items[0].qty <= 50
+        && items[0].price is number && items[0].price >= 1 && items[0].price <= 5000;
+    }
+
+    function isValidOrderBase(data) {
+      return data.keys().hasAll([
+          'orderId', 'orderCode', 'customerName', 'mobileNumber', 'whatsappNumber',
+          'deliveryAddress', 'landmark', 'orderNotes', 'items', 'subtotal',
+          'deliveryFee', 'totalAmount', 'paymentMethod', 'paymentStatus',
+          'upiTransactionId', 'status', 'cancellationStatus', 'cancellationReason',
+          'ownerNote', 'trackingToken', 'customerUid', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'orderId', 'orderCode', 'customerName', 'mobileNumber', 'whatsappNumber',
+          'deliveryAddress', 'landmark', 'orderNotes', 'items', 'subtotal',
+          'deliveryFee', 'totalAmount', 'paymentMethod', 'paymentStatus',
+          'upiTransactionId', 'status', 'cancellationStatus', 'cancellationReason',
+          'ownerNote', 'trackingToken', 'customerUid', 'createdAt', 'updatedAt'
+        ])
+        && data.orderId is string && data.orderId.size() >= 20 && data.orderId.size() <= 64 && data.orderId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.orderCode is string && data.orderCode.size() >= 6 && data.orderCode.size() <= 16 && data.orderCode.matches('^JAD-[0-9]{4,8}$')
+        && data.customerName is string && data.customerName.size() >= 2 && data.customerName.size() <= 100
+        && data.mobileNumber is string && data.mobileNumber.matches('^[0-9]{10}$')
+        && data.whatsappNumber is string && data.whatsappNumber.matches('^[0-9]{10}$')
+        && data.deliveryAddress is string && data.deliveryAddress.size() >= 5 && data.deliveryAddress.size() <= 400
+        && data.landmark is string && data.landmark.size() <= 150
+        && data.orderNotes is string && data.orderNotes.size() <= 300
+        && isValidOrderItemList(data.items)
+        && data.subtotal is number && data.subtotal >= 1 && data.subtotal <= 100000
+        && data.deliveryFee is number && data.deliveryFee >= 0 && data.deliveryFee <= 500
+        && data.totalAmount is number && data.totalAmount >= 1 && data.totalAmount <= 100000
+        && data.paymentMethod in ['UPI', 'COD']
+        && data.paymentStatus in ['Pending Verification', 'Paid', 'Cash on Delivery']
+        && data.upiTransactionId is string && data.upiTransactionId.size() <= 80
+        && isValidOrderStatusValue(data.status)
+        && isValidCancellationStatusValue(data.cancellationStatus)
+        && data.cancellationReason is string && data.cancellationReason.size() <= 300
+        && data.ownerNote is string && data.ownerNote.size() <= 300
+        && data.trackingToken is string && data.trackingToken.size() >= 20 && data.trackingToken.size() <= 64 && data.trackingToken.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.customerUid is string && data.customerUid.size() >= 1 && data.customerUid.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidOrderCreate(data, orderId) {
+      return isValidOrderBase(data)
+        && data.orderId == orderId
+        && data.status == 'Pending'
+        && data.cancellationStatus == 'None'
+        && data.cancellationReason == ''
+        && data.ownerNote == ''
+        && data.createdAt == request.time
+        && data.updatedAt == request.time
+        && (
+          (isSignedIn() && data.customerUid == request.auth.uid) ||
+          (!isSignedIn() && data.customerUid == 'guest')
+        );
+    }
+
+    function isValidOrderUpdate(data) {
+      return isValidOrderBase(data)
+        && data.updatedAt == request.time;
+    }
+
+    function isValidOrderStatusBase(data) {
+      return data.keys().hasAll([
+          'orderId', 'orderCode', 'itemsSummary', 'itemCount', 'totalAmount',
+          'paymentMethod', 'paymentStatus', 'status', 'cancellationStatus',
+          'cancellationReason', 'ownerNote', 'trackingToken', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'orderId', 'orderCode', 'itemsSummary', 'itemCount', 'totalAmount',
+          'paymentMethod', 'paymentStatus', 'status', 'cancellationStatus',
+          'cancellationReason', 'ownerNote', 'trackingToken', 'createdAt', 'updatedAt'
+        ])
+        && data.orderId is string && data.orderId.size() >= 20 && data.orderId.size() <= 64 && data.orderId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.orderCode is string && data.orderCode.size() >= 6 && data.orderCode.size() <= 16 && data.orderCode.matches('^JAD-[0-9]{4,8}$')
+        && isValidOrderItemList(data.itemsSummary)
+        && data.itemCount is number && data.itemCount >= 1 && data.itemCount <= 200
+        && data.totalAmount is number && data.totalAmount >= 1 && data.totalAmount <= 100000
+        && data.paymentMethod in ['UPI', 'COD']
+        && data.paymentStatus in ['Pending Verification', 'Paid', 'Cash on Delivery']
+        && isValidOrderStatusValue(data.status)
+        && isValidCancellationStatusValue(data.cancellationStatus)
+        && data.cancellationReason is string && data.cancellationReason.size() <= 300
+        && data.ownerNote is string && data.ownerNote.size() <= 300
+        && data.trackingToken is string && data.trackingToken.size() >= 20 && data.trackingToken.size() <= 64 && data.trackingToken.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidOrderStatusCreate(data, orderId) {
+      return isValidOrderStatusBase(data)
+        && data.orderId == orderId
+        && data.status == 'Pending'
+        && data.cancellationStatus == 'None'
+        && data.cancellationReason == ''
+        && data.ownerNote == ''
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidOrderStatusUpdate(data) {
+      return isValidOrderStatusBase(data)
+        && data.updatedAt == request.time;
+    }
+
+    function isValidAdminDoc(data, uid) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'createdAt'])
+        && data.keys().hasOnly(['uid', 'email', 'role', 'createdAt'])
+        && data.uid == uid
+        && data.email is string && data.email.size() <= 150
+        && data.role == 'owner'
+        && data.createdAt == request.time;
+    }
+
+    function isValidAdminDevice(data) {
+      return data.keys().hasAll(['token', 'deviceLabel', 'ownerUid', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['token', 'deviceLabel', 'ownerUid', 'createdAt', 'updatedAt'])
+        && data.token is string && data.token.size() >= 20 && data.token.size() <= 500
+        && data.deviceLabel is string && data.deviceLabel.size() <= 100
+        && data.ownerUid == request.auth.uid
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function isValidStoreSettings(data) {
+      return data.keys().hasAll(['isOpen', 'openingHours', 'announcement', 'updatedAt'])
+        && data.keys().hasOnly(['isOpen', 'openingHours', 'announcement', 'updatedAt'])
+        && data.isOpen is bool
+        && data.openingHours is string && data.openingHours.size() <= 120
+        && data.announcement is string && data.announcement.size() <= 240
+        && data.updatedAt == request.time;
+    }
+
+    // 4. Collection Match Blocks
+    match /test/connection {
+      allow get: if true;
+    }
+
+    match /menuItems/{itemId} {
+      allow get: if isValidId(itemId);
+      allow list: if true;
+      allow create: if isAdmin() && isValidId(itemId) && isValidMenuItem(incoming()) && incoming().id == itemId;
+      allow update: if isAdmin() && isValidId(itemId) && isValidMenuItem(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin() && isValidId(itemId);
+    }
+
+    match /orders/{orderId} {
+      // Strict PII Isolation: ONLY verified owner admins can read or list /orders
+      allow get: if isAdmin() && isValidId(orderId);
+      allow list: if isAdmin();
+      // Customers create orders atomically alongside /orderStatuses/{orderId}
+      allow create: if isValidId(orderId)
+        && orderId.size() >= 20
+        && isValidOrderCreate(incoming(), orderId)
+        && existsAfter(/databases/$(database)/documents/orderStatuses/$(orderId));
+      allow update: if isAdmin()
+        && isValidId(orderId)
+        && isValidOrderUpdate(incoming())
+        && incoming().orderId == existing().orderId
+        && incoming().trackingToken == existing().trackingToken
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin() && isValidId(orderId);
+    }
+
+    match /orderStatuses/{orderId} {
+      // Zero-PII status tracking: single-doc get by 20+ char orderId or admin; list forbidden for customers
+      allow get: if isAdmin() || (isValidId(orderId) && orderId.size() >= 20);
+      allow list: if isAdmin();
+      allow create: if isValidId(orderId)
+        && orderId.size() >= 20
+        && isValidOrderStatusCreate(incoming(), orderId)
+        && existsAfter(/databases/$(database)/documents/orders/$(orderId));
+      allow update: if isValidId(orderId)
+        && isValidOrderStatusUpdate(incoming())
+        && incoming().orderId == existing().orderId
+        && incoming().trackingToken == existing().trackingToken
+        && incoming().createdAt == existing().createdAt
+        && (
+          isAdmin() || (
+            // Customer Cancellation Request Action (must present matching trackingToken; cannot mutate terminal orders)
+            existing().status in ['Pending', 'Accepted', 'Preparing']
+            && existing().cancellationStatus == 'None'
+            && incoming().trackingToken == existing().trackingToken
+            && incoming().cancellationStatus == 'Requested'
+            && incoming().status == existing().status
+            && incoming().diff(existing()).affectedKeys().hasOnly(['cancellationStatus', 'cancellationReason', 'updatedAt'])
+          )
+        );
+      allow delete: if isAdmin() && isValidId(orderId);
+    }
+
+    match /admins/{uid} {
+      allow get: if isSignedIn() && isValidId(uid) && (request.auth.uid == uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isValidId(uid) && request.auth.uid == uid && isBootstrappedAdminEmail() && isValidAdminDoc(incoming(), uid);
+      allow update, delete: if false;
+    }
+
+    match /adminDevices/{tokenId} {
+      allow get, delete: if isAdmin() && isValidId(tokenId);
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && isValidId(tokenId) && isValidAdminDevice(incoming());
+    }
+
+    match /storeSettings/{settingId} {
+      allow get: if isValidId(settingId);
+      allow list: if true;
+      allow create, update: if isAdmin() && isValidId(settingId) && isValidStoreSettings(incoming());
+      allow delete: if false;
+    }
+  }
+}

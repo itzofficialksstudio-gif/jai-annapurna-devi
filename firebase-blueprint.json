@@ -1,0 +1,200 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A pure vegetarian dish served by Jai Annapurna Devi cloud kitchen.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Paneer",
+            "Maggi & Noodles",
+            "Rice & Pulao",
+            "Pasta",
+            "Paratha",
+            "Dal & Vegetables",
+            "Raita & Salad",
+            "Roti & Breakfast",
+            "Beverages & Extras"
+          ]
+        },
+        "description": { "type": "string", "maxLength": 240 },
+        "image": { "type": "string", "maxLength": 300 },
+        "halfPrice": { "type": "number" },
+        "fullPrice": { "type": "number" },
+        "originalHalfPrice": { "type": "number" },
+        "originalFullPrice": { "type": "number" },
+        "unitLabel": { "type": "string", "maxLength": 40 },
+        "isAvailable": { "type": "boolean" },
+        "isPopular": { "type": "boolean" },
+        "sortOrder": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "category", "description", "image", "fullPrice", "isAvailable", "isPopular", "sortOrder", "updatedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Private customer food order containing PII, accessible only to verified restaurant owner admins.",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string", "minLength": 20, "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "orderCode": { "type": "string", "minLength": 6, "maxLength": 16, "pattern": "^JAD-[0-9]{4,8}$" },
+        "customerName": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "mobileNumber": { "type": "string", "minLength": 10, "maxLength": 10, "pattern": "^[0-9]{10}$" },
+        "whatsappNumber": { "type": "string", "minLength": 10, "maxLength": 10, "pattern": "^[0-9]{10}$" },
+        "deliveryAddress": { "type": "string", "minLength": 5, "maxLength": 400 },
+        "landmark": { "type": "string", "maxLength": 150 },
+        "orderNotes": { "type": "string", "maxLength": 300 },
+        "items": { "type": "array", "description": "Bounded list of up to 30 ordered line items." },
+        "subtotal": { "type": "number" },
+        "deliveryFee": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["UPI", "COD"] },
+        "paymentStatus": { "type": "string", "enum": ["Pending Verification", "Paid", "Cash on Delivery"] },
+        "upiTransactionId": { "type": "string", "maxLength": 80 },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Accepted", "Preparing", "Out for Delivery", "Delivered", "Cancelled"]
+        },
+        "cancellationStatus": { "type": "string", "enum": ["None", "Requested", "Approved", "Rejected"] },
+        "cancellationReason": { "type": "string", "maxLength": 300 },
+        "ownerNote": { "type": "string", "maxLength": 300 },
+        "trackingToken": { "type": "string", "minLength": 20, "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "customerUid": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "orderId",
+        "orderCode",
+        "customerName",
+        "mobileNumber",
+        "whatsappNumber",
+        "deliveryAddress",
+        "landmark",
+        "orderNotes",
+        "items",
+        "subtotal",
+        "deliveryFee",
+        "totalAmount",
+        "paymentMethod",
+        "paymentStatus",
+        "upiTransactionId",
+        "status",
+        "cancellationStatus",
+        "cancellationReason",
+        "ownerNote",
+        "trackingToken",
+        "customerUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderStatus": {
+      "title": "OrderStatus",
+      "description": "Non-PII live tracking status and customer cancellation request record paired 1-to-1 with an Order.",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string", "minLength": 20, "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "orderCode": { "type": "string", "minLength": 6, "maxLength": 16, "pattern": "^JAD-[0-9]{4,8}$" },
+        "itemsSummary": { "type": "array", "description": "Bounded non-PII item summary up to 30 items." },
+        "itemCount": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["UPI", "COD"] },
+        "paymentStatus": { "type": "string", "enum": ["Pending Verification", "Paid", "Cash on Delivery"] },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Accepted", "Preparing", "Out for Delivery", "Delivered", "Cancelled"]
+        },
+        "cancellationStatus": { "type": "string", "enum": ["None", "Requested", "Approved", "Rejected"] },
+        "cancellationReason": { "type": "string", "maxLength": 300 },
+        "ownerNote": { "type": "string", "maxLength": 300 },
+        "trackingToken": { "type": "string", "minLength": 20, "maxLength": 64, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "orderId",
+        "orderCode",
+        "itemsSummary",
+        "itemCount",
+        "totalAmount",
+        "paymentMethod",
+        "paymentStatus",
+        "status",
+        "cancellationStatus",
+        "cancellationReason",
+        "ownerNote",
+        "trackingToken",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized restaurant owner administrator account.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_-]+$" },
+        "email": { "type": "string", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["owner"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "createdAt"]
+    },
+    "AdminDevice": {
+      "title": "AdminDevice",
+      "description": "Registered FCM push notification token for owner mobile or desktop device.",
+      "type": "object",
+      "properties": {
+        "token": { "type": "string", "minLength": 20, "maxLength": 500 },
+        "deviceLabel": { "type": "string", "maxLength": 100 },
+        "ownerUid": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["token", "deviceLabel", "ownerUid", "createdAt", "updatedAt"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Public cloud kitchen operational status and contact settings.",
+      "type": "object",
+      "properties": {
+        "isOpen": { "type": "boolean" },
+        "openingHours": { "type": "string", "maxLength": 120 },
+        "announcement": { "type": "string", "maxLength": 240 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["isOpen", "openingHours", "announcement", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/menuItems/{itemId}": {
+      "schema": { "$ref": "#/entities/MenuItem" },
+      "description": "Public menu catalog editable only by verified owner admins."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Private orders with customer PII; atomic create with orderStatuses, read/update/delete restricted to admins."
+    },
+    "/orderStatuses/{orderId}": {
+      "schema": { "$ref": "#/entities/OrderStatus" },
+      "description": "Non-PII live order tracking and customer cancellation request state; list restricted to admins."
+    },
+    "/admins/{uid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Owner admin role registry."
+    },
+    "/adminDevices/{tokenId}": {
+      "schema": { "$ref": "#/entities/AdminDevice" },
+      "description": "Owner push notification device tokens; restricted to admins."
+    },
+    "/storeSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/StoreSettings" },
+      "description": "Public store operational status; writable only by admins."
+    }
+  }
+}

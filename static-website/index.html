@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jai Annapurna Devi — Pure Veg Restaurant &amp; Cloud Kitchen</title>
+  <meta name="description" content="Order fresh pure vegetarian Indian food online from Jai Annapurna Devi. Paneer, Aloo Paratha, Pulao, Dal Tadka, and snacks delivered hot via WhatsApp." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Offer Strip -->
+  <div class="top-strip">
+    Special Offer: ₹50 OFF on all dishes above ₹150 · Online UPI &amp; WhatsApp: 7974068355
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#top" class="brand">
+        <span class="brand-mark" aria-hidden="true">ॐ</span>
+        <span class="brand-name">Jai Annapurna Devi</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#menu">Menu</a>
+        <a href="#payment">UPI &amp; Contact</a>
+        <a href="#footer">Hours</a>
+      </nav>
+
+      <button type="button" id="openCartBtn" class="cart-btn">
+        Cart (<span id="cartCount">0</span>) · <span id="cartTotalMini">₹0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section id="top" class="hero">
+    <div class="container hero-grid">
+      <div class="hero-card">
+        <p class="kicker">100% Pure Vegetarian Cloud Kitchen · India</p>
+        <h1>Sacred Home-Style Indian Meals, Cooked Fresh</h1>
+        <p class="hero-desc">
+          Enjoy Shahi Paneer, Butter Paneer Masala, stuffed Aloo Parathas, Dal Tadka, and snacks from
+          <strong>Jai Annapurna Devi</strong>. All menu items above ₹150 are reduced by <strong>₹50</strong>.
+        </p>
+        <div class="hero-actions">
+          <a href="#menu" class="btn-primary">Explore Menu</a>
+          <a
+            href="https://wa.me/917974068355?text=Namaste%20Jai%20Annapurna%20Devi!%20I%20want%20to%20place%20a%20food%20order."
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-whatsapp"
+          >
+            WhatsApp Order Now
+          </a>
+        </div>
+        <p class="hero-meta">
+          WhatsApp &amp; Online UPI Payment: <strong>7974068355</strong> · Free Delivery above ₹199
+        </p>
+      </div>
+
+      <div class="hero-image-wrap">
+        <img
+          src="images/hero-thali.jpg"
+          alt="Jai Annapurna Devi pure vegetarian Indian thali feast"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Menu Section -->
+  <main id="menu" class="container menu-section">
+    <div class="menu-header">
+      <div>
+        <p class="kicker">Freshly Prepared Pure Veg Menu</p>
+        <h2>Our Food Menu</h2>
+      </div>
+      <input
+        type="search"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search Paneer, Paratha, Pulao, Maggi..."
+        aria-label="Search menu dishes"
+      />
+    </div>
+
+    <div id="categoryTabs" class="category-tabs" role="tablist" aria-label="Menu Categories"></div>
+
+    <div id="menuGrid" class="menu-grid"></div>
+  </main>
+
+  <!-- UPI & WhatsApp Info Section -->
+  <section id="payment" class="container info-section">
+    <div class="info-box">
+      <div>
+        <p class="kicker">Fast &amp; Simple Ordering</p>
+        <h2>Pay via UPI or Cash on Delivery</h2>
+        <p class="info-text">
+          Add your favourite dishes to the cart, enter your name, mobile number, and delivery address, and tap
+          <strong>WhatsApp Order Now</strong>. For online payment, use PhonePe, Google Pay, or Paytm on
+          <strong>7974068355</strong>.
+        </p>
+      </div>
+      <div class="info-cta">
+        <div class="upi-card">
+          <span>WhatsApp &amp; UPI Number</span>
+          <strong>+91 79740 68355</strong>
+        </div>
+        <a
+          href="https://wa.me/917974068355?text=Namaste%20Jai%20Annapurna%20Devi!%20I%20have%20an%20order%20enquiry."
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-whatsapp"
+        >
+          Message on WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer" class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Jai Annapurna Devi</h3>
+        <p>100% Pure Vegetarian Indian Restaurant &amp; Cloud Kitchen serving fresh homestyle meals.</p>
+      </div>
+      <div>
+        <h4>Address &amp; Opening Hours</h4>
+        <p>Main Market Road, Near Annapurna Chowk, India</p>
+        <p>Open Daily: 10:00 AM – 11:00 PM</p>
+      </div>
+      <div>
+        <h4>Contact &amp; Online Payment</h4>
+        <p>Phone / WhatsApp: <a href="tel:+917974068355">+91 79740 68355</a></p>
+        <p>Online UPI (GPay / PhonePe / Paytm): 7974068355</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © <span id="yearNow"></span> Jai Annapurna Devi Pure Veg Kitchen · India
+    </div>
+  </footer>
+
+  <!-- Slide-out Cart & WhatsApp Order Drawer -->
+  <div id="cartBackdrop" class="drawer-backdrop hidden" aria-hidden="true"></div>
+  <aside id="cartDrawer" class="cart-drawer hidden" aria-label="Shopping Cart">
+    <div class="drawer-header">
+      <h3>Your Order Cart</h3>
+      <button type="button" id="closeCartBtn" class="close-btn" aria-label="Close Cart">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div id="cartItemsContainer"></div>
+
+      <div id="checkoutSection" class="checkout-section hidden">
+        <div class="bill-summary">
+          <div><span>Subtotal</span><strong id="billSubtotal">₹0</strong></div>
+          <div><span>Delivery</span><strong id="billDelivery">FREE</strong></div>
+          <div class="bill-total"><span>Total Payable</span><strong id="billTotal">₹0</strong></div>
+        </div>
+
+        <form id="whatsappOrderForm" class="order-form">
+          <h4>Customer Delivery Details</h4>
+          <label>
+            Full Name *
+            <input type="text" id="custName" required placeholder="e.g. Rajesh Sharma" />
+          </label>
+          <label>
+            Mobile Number *
+            <input type="tel" id="custMobile" required maxlength="10" placeholder="10-digit mobile number" />
+          </label>
+          <label>
+            Complete Delivery Address *
+            <textarea id="custAddress" required rows="2" placeholder="House No., Street, Area, Landmark"></textarea>
+          </label>
+          <label>
+            Payment Preference
+            <select id="custPayment">
+              <option value="Online UPI (7974068355)">Online UPI (PhonePe / GPay / Paytm: 7974068355)</option>
+              <option value="Cash on Delivery">Cash on Delivery (COD)</option>
+            </select>
+          </label>
+          <label>
+            Order Notes (Optional)
+            <input type="text" id="custNotes" placeholder="Less spicy, extra chutney..." />
+          </label>
+
+          <button type="submit" class="btn-whatsapp full-width">
+            WhatsApp Order Now (7974068355)
+          </button>
+          <a
+            id="waFallbackLink"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-primary full-width hidden"
+          >
+            Tap Here if WhatsApp Didn&apos;t Open
+          </a>
+        </form>
+      </div>
+    </div>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>
