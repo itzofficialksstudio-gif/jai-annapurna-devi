@@ -250,6 +250,18 @@ document.getElementById('whatsappOrderForm').addEventListener('submit', (e) => {
   fallback.click();
 });
 
+document.getElementById('openMenuCardBtn').addEventListener('click', () => {
+  document.getElementById('menuCardModal').classList.remove('hidden');
+});
+document.getElementById('closeMenuCardBtn').addEventListener('click', () => {
+  document.getElementById('menuCardModal').classList.add('hidden');
+});
+document.getElementById('menuCardModal').addEventListener('click', (e) => {
+  if (e.target.id === 'menuCardModal') {
+    document.getElementById('menuCardModal').classList.add('hidden');
+  }
+});
+
 document.getElementById('yearNow').textContent = new Date().getFullYear();
 renderCategories();
 renderMenu();

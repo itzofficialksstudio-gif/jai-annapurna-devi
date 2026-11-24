@@ -28,7 +28,7 @@ import {
   SavedCustomerOrderRef,
   StoreSettings,
 } from './types';
-import { formatINR, getSavedCustomerOrders } from './utils/orderService';
+import { formatINR, getSavedCustomerOrders, isStaleMenuImage } from './utils/orderService';
 
 type ActiveView = 'store' | 'track' | 'admin';
 
@@ -81,20 +81,45 @@ export function App() {
     }
   }, [cart]);
 
-  // Listen to public menuItems (fallback to INITIAL_MENU_ITEMS if collection is empty)
+  // Listen to public menuItems and merge with INITIAL_MENU_ITEMS so the full menu never disappears
   useEffect(() => {
     const q = query(collection(db, 'menuItems'), orderBy('sortOrder', 'asc'));
     const unsub = onSnapshot(
       q,
       (snap) => {
-        if (!snap.empty) {
-          const items: MenuItem[] = [];
-          snap.forEach((d) => items.push(d.data() as MenuItem));
-          setMenuItems(items);
+        if (snap.empty) {
+          setMenuItems(INITIAL_MENU_ITEMS);
+          return;
         }
+        const firestoreById = new Map<string, MenuItem>();
+        const customItems: MenuItem[] = [];
+        const defaultIds = new Set(INITIAL_MENU_ITEMS.map((i) => i.id));
+
+        snap.forEach((d) => {
+          const item = d.data() as MenuItem;
+          firestoreById.set(d.id, item);
+          if (!defaultIds.has(d.id)) {
+            customItems.push(item);
+          }
+        });
+
+        const mergedDefaults = INITIAL_MENU_ITEMS.map((base) => {
+          const remote = firestoreById.get(base.id);
+          if (!remote) return base;
+          return {
+            ...base,
+            ...remote,
+            image: isStaleMenuImage(remote.image) || !remote.image ? base.image : remote.image,
+          };
+        });
+
+        const combined = [...mergedDefaults, ...customItems].sort(
+          (a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)
+        );
+        setMenuItems(combined);
       },
       () => {
-        // Fallback silently to static INITIAL_MENU_ITEMS on transient offline
+        setMenuItems(INITIAL_MENU_ITEMS);
       }
     );
     return () => unsub();
@@ -422,16 +447,26 @@ export function App() {
                     </h2>
                   </div>
 
-                  {/* Search Bar */}
-                  <div className="relative w-full md:w-80">
-                    <Search className="w-4 h-4 text-[#8E735E] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search Paneer, Paratha, Pulao, Maggi..."
-                      className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#FFFDF9] border border-[#DFCBB2] rounded-xl focus:outline-none focus:border-[#991B1B]"
-                    />
+                  {/* Search Bar & Printed Menu Button */}
+                  <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => setShowOriginalMenuModal(true)}
+                      className="px-3.5 py-2.5 bg-[#FFFDF9] border border-[#DFCBB2] text-[#991B1B] text-xs font-semibold rounded-xl hover:border-[#991B1B] inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
+                    >
+                      <FileImage className="w-4 h-4" />
+                      <span>Printed Menu Card</span>
+                    </button>
+                    <div className="relative flex-1 md:w-72">
+                      <Search className="w-4 h-4 text-[#8E735E] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search Paneer, Paratha, Pulao, Maggi..."
+                        className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#FFFDF9] border border-[#DFCBB2] rounded-xl focus:outline-none focus:border-[#991B1B]"
+                      />
+                    </div>
                   </div>
                 </div>
 

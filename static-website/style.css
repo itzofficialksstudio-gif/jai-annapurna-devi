@@ -641,3 +641,55 @@ a {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.text-link-btn {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.menu-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.menu-modal-box {
+  background: var(--paper);
+  border-radius: 16px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.menu-modal-body {
+  padding: 16px;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.menu-modal-note {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+
+.menu-modal-body img {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #dfcbb2;
+}
+

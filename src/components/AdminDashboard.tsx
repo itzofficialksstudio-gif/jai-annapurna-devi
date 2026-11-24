@@ -53,6 +53,7 @@ import {
   buildCustomerStatusWhatsAppUrl,
   formatDateTime,
   formatINR,
+  restoreFullMenuCatalog,
   saveAdminDeviceToken,
   seedMenuIfEmpty,
 } from '../utils/orderService';
@@ -182,6 +183,9 @@ export function AdminDashboard({
   // Attach Real-Time Orders & OrderStatuses Listeners ONLY when Admin is Verified
   useEffect(() => {
     if (!isAdminVerified) return;
+
+    // Quietly restore any missing default dishes or stale image paths in Firestore
+    seedMenuIfEmpty().catch(() => {});
 
     initialLoadDoneRef.current = false;
     seenOrderIdsRef.current = new Set();
@@ -401,7 +405,8 @@ export function AdminDashboard({
   const handleSyncMenu = async () => {
     setSeedingMenu(true);
     try {
-      await seedMenuIfEmpty();
+      const count = await restoreFullMenuCatalog();
+      setLiveAlertBanner(`Full ${count}-dish menu restored to Firestore with fresh dish photos!`);
     } finally {
       setSeedingMenu(false);
     }
@@ -1036,7 +1041,7 @@ export function AdminDashboard({
               className="px-4 py-2 bg-[#991B1B] text-white text-xs font-semibold rounded-lg hover:bg-[#7F1D1D] inline-flex items-center gap-1.5 disabled:opacity-60"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>{seedingMenu ? 'Syncing...' : 'Sync Menu Catalog to Firestore'}</span>
+              <span>{seedingMenu ? 'Restoring...' : 'Restore Full 30-Dish Menu to Firestore'}</span>
             </button>
           </div>
 

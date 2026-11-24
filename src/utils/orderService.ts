@@ -349,18 +349,64 @@ export async function adminHandleCancellation(
   }
 }
 
+const STALE_COMBO_IMAGES = new Set([
+  '/src/assets/images/dish_paneer_masala_1795527587822.jpg',
+  '/src/assets/images/dish_noodles_pasta_1795527589174.jpg',
+  '/src/assets/images/dish_pulao_dal_1795527594841.jpg',
+  '/src/assets/images/dish_breakfast_raita_1795527595583.jpg',
+  '/src/assets/images/dish_aloo_paratha_1795527588795.jpg',
+]);
+
+export function isStaleMenuImage(imageUrl?: string): boolean {
+  return Boolean(imageUrl && STALE_COMBO_IMAGES.has(imageUrl));
+}
+
 export async function seedMenuIfEmpty(): Promise<number> {
   try {
     const snap = await getDocs(collection(db, 'menuItems'));
-    if (!snap.empty) return snap.size;
+    const existingById = new Map<string, MenuItem>();
+    snap.forEach((d) => {
+      existingById.set(d.id, d.data() as MenuItem);
+    });
 
     const batch = writeBatch(db);
+    let writeCount = 0;
+
     INITIAL_MENU_ITEMS.forEach((item) => {
-      const payload = {
+      const existing = existingById.get(item.id);
+      if (!existing) {
+        batch.set(doc(db, 'menuItems', item.id), {
+          ...item,
+          updatedAt: serverTimestamp(),
+        });
+        writeCount += 1;
+      } else if (isStaleMenuImage(existing.image)) {
+        batch.set(doc(db, 'menuItems', item.id), {
+          ...existing,
+          image: item.image,
+          updatedAt: serverTimestamp(),
+        });
+        writeCount += 1;
+      }
+    });
+
+    if (writeCount > 0) {
+      await batch.commit();
+    }
+    return INITIAL_MENU_ITEMS.length;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, 'menuItems');
+  }
+}
+
+export async function restoreFullMenuCatalog(): Promise<number> {
+  try {
+    const batch = writeBatch(db);
+    INITIAL_MENU_ITEMS.forEach((item) => {
+      batch.set(doc(db, 'menuItems', item.id), {
         ...item,
         updatedAt: serverTimestamp(),
-      };
-      batch.set(doc(db, 'menuItems', item.id), payload);
+      });
     });
     await batch.commit();
     return INITIAL_MENU_ITEMS.length;
